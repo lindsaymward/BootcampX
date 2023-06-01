@@ -7,17 +7,18 @@ const pool = new Pool({
   database: 'bootcampx'
 });
 
-const cohortName = process.argv[2];
-
-pool.query(`
+const cohortName = [process.argv[2] || 'JUL02'];
+const teachersQuery = `
 SELECT DISTINCT teachers.name AS teacher, cohorts.name AS cohorts
 FROM assistance_requests
 JOIN teachers ON teachers.id = teacher_id
 JOIN students ON students.id = student_id
 JOIN cohorts ON cohorts.id = cohort_id
-WHERE cohorts.name = '${cohortName || 'JUL02'}'
+WHERE cohorts.name = $1
 ORDER BY teacher;
-`)
+`;
+
+pool.query(teachersQuery, cohortName)
 .then(res => {
   res.rows.forEach(teacher => {
     console.log(`${teacher.cohorts}: ${teacher.teacher}`);
